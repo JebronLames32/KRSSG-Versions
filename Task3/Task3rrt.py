@@ -6,6 +6,7 @@ import time
 ##Global variables 
 path=[]
 img = cv2.imread('task3.1.png', 0)
+img2=cv2.imread('task3.1.png', 0)
 (m, n) = (img.shape)
 a, b = (45, 50)
 endcolor=82     #start
@@ -35,6 +36,9 @@ yrand=b
 
 cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
 cv2.imshow('Image', img)
+cv2.namedWindow('Image2', cv2.WINDOW_NORMAL)
+cv2.imshow('Image2', img2)
+
 
 ##distance between two points
 def dist(x1,y1,x2,y2):
@@ -45,16 +49,17 @@ def dist(x1,y1,x2,y2):
     return u
 
 def addcoordinate(xmin,ymin,xrand,yrand):
+    dist2Pix=4          # change this variable to vary distance between two adjacent pixels in path
     if(xrand>xmin):
-        xadd=xmin+1
+        xadd=xmin+dist2Pix
     elif(xrand<xmin):
-        xadd=xmin-1
+        xadd=xmin-dist2Pix
     else:
         xadd=0
     if(yrand>ymin):
-        yadd=ymin+1
+        yadd=ymin+dist2Pix
     elif(yrand<ymin):
-        yadd=ymin-1
+        yadd=ymin-dist2Pix
     else:
         yadd=0
     return(xadd,yadd)
@@ -97,14 +102,37 @@ while (True) :
             img[xadd,yadd]=170 
             
             count+=1
+##end of traversing
 
+##path tracking give i = count
 
+def pathneighbors(x,y,i):
+    global count2
+    neighbors=[]
+    print("here")
+    for cord1 in range (-4,5,4):
+        for cord2 in range (-4,5,4):
+            if(img[cord1+x,cord2+y]==170 and (cord1,cord2)!=(0,0)):
+                neighbors.append((x+cord1,y+cord2))                 ##will find all the neighbors in the path
+    print(neighbors)
+    j=0
+    for p in path[i::-1]:
+        j+=1
+        if p in neighbors:
+            if(p==(a,b)):
+                print("reached start")
+                return
+            img2[p]=250
+            cv2.imshow('Image2', img2.astype(np.uint8))
+            cv2.waitKey(5)
+            print(p)
+            (x,y)=p
+            count2+=1
+            pathneighbors(x,y,i-j)
 
-
-
-
-
-
+count2=0
+pathneighbors(xadd,yadd,count)
+print(count2)
 
 #end = time.time()
 #print(end-begin)
