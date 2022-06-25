@@ -40,7 +40,7 @@ cv2.imshow('Image', img)
 def dist(x1,y1,x2,y2):
     k1 = (x1-x2)*(x1-x2)
     k2 = (y1 - y2) * (y1 - y2)
-    u = (k1+k2)     #no need of square root
+    u = (k1+k2)     
     u=math.sqrt(u)
     return u
 
