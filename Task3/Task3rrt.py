@@ -69,43 +69,7 @@ def displayimage():
     cv2.waitKey(5)
 
 
-
-#create a main function and initialize i1,j1 as starting point
-count=0
-(xadd,yadd)=(a,b)
-while (True) :
-    xrand = np.random.randint(0, n)
-    yrand = np.random.randint(0, m)
-    print(xrand,yrand)
-    min=100000
-    #checking that it is a valid path
-    if (img[xrand,yrand] == 0 or img[xrand,yrand]==82):    
-        ##finds the nearest node in the tree to the random point
-        for (x,y) in path:
-            #print(dist(x, y, xrand, yrand))
-            if (dist(x, y, xrand, yrand) < min):
-                min = dist(x, y , xrand, yrand)
-                xmin=x
-                ymin=y
-                
-
-        (xadd,yadd)=addcoordinate(xmin,ymin,xrand,yrand)
-        if(img[xadd,yadd]!=255 and xadd>0 and yadd>0):
-            
-            path.append((xadd,yadd))
-                     #170 is just being used as a colour to denote the traversed path
-            displayimage()
-            print("here",(yadd,xadd),count,min,img[xadd,yadd])
-            if(img[xadd,yadd]==endcolor and xadd>500 and yadd>500):     #check condition
-                print("reached")
-                break
-            img[xadd,yadd]=170 
-            
-            count+=1
-##end of traversing
-
-##path tracking give i = count
-
+##Reccursive function that traverses the list once to find the ultimate path
 def pathneighbors(x,y,i):
     global count2
     neighbors=[]
@@ -130,11 +94,50 @@ def pathneighbors(x,y,i):
             count2+=1
             pathneighbors(x,y,i-j)
 
+##create a main function and initialize a,b as starting point
 count2=0
-pathneighbors(xadd,yadd,count)
-print(count2)
+def Main():
+    count=0
+    (xadd,yadd)=(a,b)
+    while (True) :
+        xrand = np.random.randint(0, n)
+        yrand = np.random.randint(0, m)
+        print(xrand,yrand)
+        min=100000
+        #checking that it is a valid path
+        if (img[xrand,yrand] == 0 or img[xrand,yrand]==82):    
+            ##finds the nearest node in the tree to the random point
+            for (x,y) in path:
+                #print(dist(x, y, xrand, yrand))
+                if (dist(x, y, xrand, yrand) < min):
+                    min = dist(x, y , xrand, yrand)
+                    xmin=x
+                    ymin=y
+                    
+            (xadd,yadd)=addcoordinate(xmin,ymin,xrand,yrand)
+            if(img[xadd,yadd]!=255 and xadd>0 and yadd>0):
+                
+                path.append((xadd,yadd))
+                        #170 is just being used as a colour to denote the traversed path
+                displayimage()
+                print("here",(yadd,xadd),count,min,img[xadd,yadd])
+                if(img[xadd,yadd]==endcolor and xadd>500 and yadd>500):     #check condition
+                    print("reached")
+                    break
+                img[xadd,yadd]=170 
+                
+                count+=1
+    ##end of traversing
+
+    ##path tracking give i = count as arguement
+    
+    pathneighbors(xadd,yadd,count)
+    print(count2,"total steps")
 
 #end = time.time()
 #print(end-begin)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+
+if __name__=="__main__":
+    Main()
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
