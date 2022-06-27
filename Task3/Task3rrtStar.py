@@ -70,16 +70,16 @@ def displayimage():
 
 
 ##Reccursive function that traverses the list once to find the ultimate path
-def pathneighbors(x,y,i):
+def pathneighbours(x,y,i):
     global count2
     
     #print("here")
-    neighbors=neighbourInPathPixelsList(x,y)
+    neighbours=neighbourInPathPixelsList(x,y)
     #print(neighbors)
     j=0
     for p in path[i::-1]:
         j+=1
-        if p in neighbors:
+        if p in neighbours:
             if(p==(a,b)):
                 print("reached start")
                 time.sleep(1)
@@ -92,30 +92,65 @@ def pathneighbors(x,y,i):
             (x,y)=p
             count2+=1
             print("i,j = ", i, j)
-            pathneighbors(x,y,i-j)
+            pathneighbours(x,y,i-j)
             return
 
 
 def neighbourInPathPixelsList(x,y):
-    neighbors=[]
+    neighbours=[]
     for cord1 in range (-4,5,4):
         for cord2 in range (-4,5,4):
             if(img[cord1+x,cord2+y]==170 and (cord1,cord2)!=(0,0)):
-                neighbors.append((x+cord1,y+cord2))                 ##will find all the neighbors in the path
-    return(neighbors)
+                neighbours.append((x+cord1,y+cord2))                 ##will find all the neighbors in the path
+    return(neighbours)
 
 def newStartLinks(xnew,ynew,minx,miny):
     mindist=dist(minx,miny,xnew,ynew)
-    minNx,minNy=minx,miny
+    (minNx,minNy)=(minx,miny)
     neighbors=neighbourInPathPixelsList(xnew,ynew)
     for (xneigh,yneigh) in neighbors:
         if(dist(xneigh,yneigh,xnew,ynew)<mindist):
+            print("yes it got changed",(xnew,ynew))         ##almost no change is happening every time. Suggests that initial dist is mindist nearly all the time
             mindist=dist(xneigh,yneigh,xnew,ynew)
             (minNx,minNy)=(xneigh,yneigh)
     
-        #print("yes it got changed",(xnew,ynew))
+            
     ind=path.index((minNx,minNy))
     path.insert(ind+1,(xnew,ynew))
+    return(minNx,minNy)
+
+                                                                                  ##neighbours
+def ConvertsteptoRRTstar(x,y,xorigin,yorigin):                                  #       #       #
+    neighbours=neighbourInPathPixelsList(x,y)                                   
+    costNeighbour=[]                                                   #(origin)#------>#       #
+    for particularNeighbour in neighbours:                                           #(x,y)
+        cost=0                                                                  #       #       #
+        (intermediateNodex,intermediateNodey)=(xorigin,yorigin)                                                
+        for p in path[path.index(particularNeighbour):]:
+            if(p in neighbours):                                               #only cost to elements in the path coming after the origin will be found
+                if(p!=particularNeighbour):
+                    (x1,y1)=p
+                    cost+=dist(x1,y1,intermediateNodex,intermediateNodey)       #x1,y1 made to pass p as arguement into dist function
+                    (intermediateNodex,intermediateNodey)=p
+                elif(p==particularNeighbour):
+                    (x1,y1)=p
+                    cost+=dist(x1,y1,intermediateNodex,intermediateNodey)       #### jooks like jargon, hard to understand, gotta change ####
+                    costNeighbour.append((neighbours.index(particularNeighbour),cost))  
+                    break
+    #found cost to nodes in neighbourhood (reference origin)
+    #now making necessary changes
+    OriginToCenter=dist(xorigin,yorigin,x,y)
+    #print(OriginToCenter)          #?? why is this constant and equal to 5.5...
+    for node in costNeighbour:
+        (x1,y1)=neighbours[node[0]]
+        
+        CenterToNode=dist(x1,y1,x,y)                            #since 0 contains index of neighbour and 1 contains cost of neighbour
+        #print(node[1],OriginToCenter+CenterToNode,neighbours[node[0]])
+        #time.sleep(1)
+        if (node[1]>OriginToCenter+CenterToNode):
+            print("i'm changing")
+            
+
 
 
 ##create a main function and initialize a,b as starting point
@@ -141,7 +176,8 @@ def Main():
             (xadd,yadd)=addcoordinate(xmin,ymin,xrand,yrand)
             if(img[xadd,yadd]!=255 and img[xadd,yadd]!=170 and xadd>0 and yadd>0):
                 
-                newStartLinks(xadd,yadd,xmin,ymin)
+                (xmin,ymin)=newStartLinks(xadd,yadd,xmin,ymin)
+                ConvertsteptoRRTstar(xadd,yadd,xmin,ymin)
                         
                 displayimage()
                 #print("here",(yadd,xadd),count,min,img[xadd,yadd])
@@ -155,8 +191,8 @@ def Main():
 
     ##path tracking give i = count as arguement
     #print(path)
-    cv2.waitKey(0)
-    pathneighbors(xadd,yadd,count)
+    #cv2.waitKey(0)
+    pathneighbours(xadd,yadd,count)
     print(count2,"total steps")
 
 #end = time.time()
