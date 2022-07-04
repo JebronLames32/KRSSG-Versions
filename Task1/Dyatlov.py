@@ -34,30 +34,31 @@ def setbacktonormal():
 setbacktonormal()
 printgrid()
 
+
+def calculateXandY(i):
+    rem1=(posclient[i]-1)//10
+    x=9-rem1
+    rem=(posclient[i]-1)%10
+    if(rem1%2==1):
+        y=9-rem
+    else:
+        y=rem
+    return(x,y)
+
 def stepchanges():
     for i in range(4):
-        rem1=(posclient[i]-1)//10
-        x=9-rem1
-        rem=(posclient[i]-1)%10
-        if(rem1%2==1):
-            y=9-rem
-        else:
-            y=rem
+        (x,y)=calculateXandY(i)
         print("client",i,x,y)
         if(grid[x][y]!='#'):
             grid[x][y]=clients[i]
         elif (x,y) in bombcord:
             print("BOMB")
             if(posclient[i]>10):
-                posclient[i]=posclient[i]-8
+                while(grid[x][y]=='#' and posclient[i]>10):
+                    posclient[i]=posclient[i]-8
+                    (x,y)=calculateXandY(i)
                 
-            rem1=(posclient[i]-1)//10
-            x=9-rem1
-            rem=(posclient[i]-1)%10
-            if(rem1%2==1):
-                y=9-rem
-            else:
-                y=rem
+            
             
             grid[x][y]=clients[i]
     printgrid()
@@ -71,7 +72,8 @@ def threaded(c,z):
         c.send(str(l).encode())
         c.send("\n".encode())
         c.send(str(r).encode())
-        for w in range(100):   
+        w=0
+        while True:   
             step=c.recv(1).decode('utf-8')
             step=int(step)
             print("stepsize",z,":",step,"w",w)
@@ -86,6 +88,7 @@ def threaded(c,z):
             print("count",count,"z",z)
             if(posclient[z]>99):
                 print("I'm out")
+                posclient[z]=100
                 c.send('0'.encode())
                 break
             c.send(lastout.encode())
